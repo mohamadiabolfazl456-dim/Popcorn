@@ -13,6 +13,8 @@ import http.cookiejar
 import pprint
 '''
 قابلیت های جدید
+putln()  \n
+put()   جلو
 💎شماره خط خطا رو نشون میده
 💎قابلیت range پایتون برای لیست عدد
 list nums=i[0..10]  [0,1,2....10]
@@ -38,7 +40,7 @@ urllib.request.custom_headers = {}          # دیکشنری هدرهای سفا
 urllib.request.cookie_jar = None            # برای کوکی‌ها (بعداً فعال می‌شه)
 
 # ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-version="""1.5_Pro"""
+version="""1.6"""
 current_line_number = 0   # شماره خط فعلی
 
 variables = {}
@@ -610,8 +612,316 @@ def put(code):
 			print('', end='')
 		if i < len(parts)-1:
 			print('', end='')
-	print()
+			
 
+def putln(code):
+	inside = code[6:-1]
+	parts = inside.split(',')
+#پیمایش دستور
+	for i, part in enumerate(parts):
+		part = part.strip()
+		if part.startswith('^') and part.endswith('^'):
+				#تبدیل کاراکتر های خاص
+			mess_print = part[1:-1].replace('_', ' ').replace('\\s', ' ').replace('\\t','	').replace('\\n',"""\n""")
+			print(mess_print, end='')
+		#برش رشته داخلی
+		# داخل تابع put() — جایگزین بخش قبلی که part رو پردازش می‌کرد
+		# تبدیل به حروف بزرگ - uper(^text^) یا uper(name)
+		# محاسبه طول — len(^text^) یا len(name) یا len(arr) یا حتی len(text=>[0:5])
+# جایگزینی رشته — replace(^old^,^new^,source)
+
+		elif part.startswith('len(') and part.endswith(')'):
+			try:
+				inner = part[4:-1].strip()  # محتوای داخل پرانتز
+
+				# حالت ۱: len(^متن مستقیم^)
+				if (inner.startswith('^') and inner.endswith('^')) or (inner.startswith('#') and inner.endswith('#')):
+					text = inner[1:-1].replace('_', ' ').replace('\\n','\n').replace('\\t','\t').replace('\\s',' ')
+					print(len(text), end='')
+
+				# حالت ۲: len(name=>[0:5]) — برش رشته
+				elif '=>' in inner and inner.endswith(']'):
+					# اول برش رو انجام بده، بعد طولش رو بگیر
+					try:
+						left, slice_part = inner.split('=>', 1)
+						var_name = left.strip()
+						if var_name not in variables:
+							print("[VarNotFound]", end='')
+							continue
+						source = variables[var_name]
+						if not isinstance(source, str):
+							print("[NotStr]", end='')
+							continue
+						if not slice_part.startswith('[') or not slice_part.endswith(']'):
+							print(0, end='')
+							continue
+						slice_str = slice_part[1:-1].strip()
+						if ':' not in slice_str:
+							print(0, end='')
+							continue
+						start_str, end_str = slice_str.split(':', 1)
+						start = None if not start_str.strip() else int(eval(start_str.strip(), {}, {**variables, **constable, **array,**listStr,**listInt}))
+						end = None if not end_str.strip() else int(eval(end_str.strip(), {}, {**variables, **constable, **array,**listStr,**listInt}))
+						sliced = source[start:end]
+						print(len(sliced), end='')
+					except:
+						print("[SliceErr]", end='')
+
+				# حالت ۳: len(name) — نام متغیر
+				elif inner in variables:
+					val = variables[inner]
+					if isinstance(val, str):
+						print(len(val), end='')
+					elif isinstance(val, list):  # آرایه
+						print(len(val), end='')
+					else:
+						print(len(str(val)), end='')  # برای عدد، بول و ...
+
+				# حالت ۴: len(constant)
+				elif inner in constable:
+					val = constable[inner]
+					print(len(str(val)), end='')
+
+				else:
+					print(0, end='')  # اگه هیچی نبود
+
+			except Exception as e:
+				print("[LenErr]", end='')
+		elif part.startswith('upper(') and part.endswith(')'):
+			try:
+				inner = part[6:-1].strip()  # متن داخل پرانتز
+				text = ""
+
+				# اگر داخل ^...^ باشه
+				if (inner.startswith('^') and inner.endswith('^')) or (inner.startswith('#') and inner.endswith('#')):
+					text = inner[1:-1]
+					text = text.replace('_', ' ').replace('\\n','\n').replace('\\t','\t').replace('\\s',' ')
+				
+				# اگر نام متغیر باشه
+				elif inner in variables:
+					text = str(variables[inner])
+				elif inner in constable:
+					text = str(constable[inner])
+				else:
+					text = inner  # خام چاپ بشه اگه اشتباه بود
+
+				print(text.upper(), end='')
+
+			except Exception as e:
+				print("[UperErr]", end='')
+
+		# تبدیل به حروف کوچک - lwer(^Text^) یا lwer(name)
+		elif part.startswith('lower(') and part.endswith(')'):
+			try:
+				inner = part[6:-1].strip()
+				text = ""
+
+				if (inner.startswith('^') and inner.endswith('^')) or (inner.startswith('#') and inner.endswith('#')):
+					text = inner[1:-1]
+					text = text.replace('_', ' ').replace('\n', '\n').replace('\\t', '\t').replace('\\s', ' ')
+				elif inner in variables:
+					text = str(variables[inner])
+				elif inner in constable:
+					text = str(constable[inner])
+				else:
+					text = inner
+
+				print(text.lower(), end='')
+
+			except Exception as e:
+				print("[LwerErr]", end='')
+				
+#
+
+#
+		elif part.startswith('count(') and part.endswith(')'):
+			inner = part[6:-1].strip()                      # محتوای داخل count(...)
+			try:
+				if '=>' not in inner:
+					print("[CountSyntaxError]", end='')
+					continue
+
+				var_name, search_part = [p.strip() for p in inner.split('=>', 1)]
+
+				# بررسی وجود متغیر اصلی
+				if var_name not in variables:
+					print("[VarNotFound]", end='')
+					continue
+
+				source = variables[var_name]
+				if not isinstance(source, str):
+					print("[NotString]", end='')
+					continue
+
+				# استخراج متن جستجو – پشتیبانی از همه حالت‌های رایج
+				if search_part.startswith('^') and search_part.endswith('^'):
+					search_text = search_part[1:-1]
+				elif search_part.startswith('#') and search_part.endswith('#'):
+					search_text = search_part[1:-1]
+				elif search_part.startswith('"') and search_part.endswith('"'):
+					search_text = search_part[1:-1]
+				elif search_part.startswith("'") and search_part.endswith("'"):
+					search_text = search_part[1:-1]
+				elif search_part in variables:
+					search_text = str(variables[search_part])
+				elif search_part in constable:
+					search_text = str(constable[search_part])
+				else:
+					search_text = search_part                     # متن خام
+
+				# جایگزینی کاراکترهای خاص (مانند سایر بخش‌های Dim)
+				search_text = search_text.replace('_', ' ') \
+				                         .replace('\\n', '\n') \
+				                         .replace('\\t', '\t') \
+				                         .replace('\\s', ' ')
+
+				# انجام شمارش و چاپ نتیجه
+				print(source.count(search_text), end='')
+
+			except Exception as e:
+				print(f"[CountError:{type(e).__name__}]", end='')
+
+#
+		elif part.startswith('replace(') and part.endswith(')'):
+			try:
+				inner = part[8:-1].strip()
+				if inner.count(',') != 2:
+					print("[ReplaceSyntaxErr]", end='')
+					continue
+
+				old_part, new_part, source_part = [p.strip() for p in inner.split(',', 2)]
+
+				# استخراج متن قدیمی
+				if old_part.startswith('^') and old_part.endswith('^'):
+					old_text = old_part[1:-1].replace('_', ' ').replace('\\n','\n').replace('\\t','\t').replace('\\s',' ')
+				elif old_part in variables:
+					old_text = str(variables[old_part])
+				elif old_part in constable:
+					old_text = str(constable[old_part])
+				else:
+					old_text = old_part
+
+				# استخراج متن جدید
+				if new_part.startswith('^') and new_part.endswith('^'):
+					new_text = new_part[1:-1].replace('_', ' ').replace('\\n','\n').replace('\\t','\t').replace('\\s',' ')
+				elif new_part in variables:
+					new_text = str(variables[new_part])
+				elif new_part in constable:
+					new_text = str(constable[new_part])
+				else:
+					new_text = new_part
+
+				# استخراج منبع (متغیر، ثابت یا برش رشته)
+				if '=>' in source_part and source_part.endswith(']'):
+					left, slice_part = source_part.split('=>', 1)
+					var_name = left.strip()
+					if var_name not in variables:
+						print("[VarNotFound]", end='')
+						continue
+					source = variables[var_name]
+					if not isinstance(source, str):
+						print("[NotStr]", end='')
+						continue
+					slice_str = slice_part[1:-1].strip()
+					if ':' not in slice_str:
+						print(source, end='')
+						continue
+					start_str, end_str = slice_str.split(':', 1)
+					start = None if not start_str.strip() else int(eval(start_str.strip(), {}, {**variables, **constable, **array, **listStr, **listInt}))
+					end   = None if not end_str.strip()   else int(eval(end_str.strip(),   {}, {**variables, **constable, **array, **listStr, **listInt}))
+					source = source[start:end]
+				elif source_part.startswith('^') and source_part.endswith('^'):
+					source = source_part[1:-1].replace('_', ' ').replace('\\n','\n').replace('\\t','\t').replace('\\s',' ')
+				elif source_part in variables:
+					source = str(variables[source_part])
+				elif source_part in constable:
+					source = str(constable[source_part])
+				else:
+					source = source_part
+
+				# انجام جایگزینی
+				if isinstance(source, str):
+					result = source.replace(old_text, new_text)
+					print(result, end='')
+				else:
+					print("[ReplaceNotStr]", end='')
+
+			except Exception as e:
+				print(f"[ReplaceErr:{type(e).__name__}]", end='')
+		#sleep داخلی put
+		elif part.startswith('slep(') and part.endswith(')'):
+			try:
+				inside=part[5:-1]
+				t=eval(inside, {}, {**variables, **constable, **array,**listStr,**listInt})
+				t=int(t)
+				time.sleep(t)
+			except Exception as e:
+				print('',e)
+		elif '=>' in part and part.endswith(']'):
+			# پشتیبانی از برش مستقیم رشته داخل put
+			# مثال: text=>[0:5] یا msg=>[a:b] یا name=>[:10]
+			try:
+				left, slice_part = part.split('=>', 1)
+				var_name = left.strip()
+
+				if var_name not in variables:
+					print("[VarNotFound]", end='')
+					continue
+
+				source = variables[var_name]
+				if not isinstance(source, str):
+					print("[NotString]", end='')
+					continue
+
+				if not slice_part.startswith('[') or not slice_part.endswith(']'):
+					print(part, end='')  # اگه فرمت اشتباه بود، خام چاپ کن
+					continue
+
+				slice_str = slice_part[1:-1].strip()  # مثلاً "0:5" یا ":10" یا "a:"
+
+				if ':' not in slice_str:
+					print(part, end='')
+					continue
+
+				start_str, end_str = slice_str.split(':', 1)
+				start = None if not start_str.strip() else int(eval(start_str.strip(), {}, {**variables, **constable, **array,**listStr,**listInt}))
+				end = None if not end_str.strip() else int(eval(end_str.strip(), {}, {**variables, **constable, **array,**listStr,**listInt}))
+
+				result = source[start:end]
+				print(result, end='')
+
+			except Exception as e:
+				print("[SliceErr]", end='')
+			#فرمت در چاپ
+		elif (part.startswith('f^') and part.endswith('^')) or (part.startswith('F^') and part.endswith('^')):
+		
+			mess_print = part[2:-1].replace('_', ' ').replace('\\s', ' ').replace('\\t','	').replace('\\n',"""\n""")
+			try:
+		# با استفاده از format_map متغیرها و ثابت‌ها را در {} جای‌گذاری می‌کنه
+				formatted = mess_print.format_map({**variables, **constable,**array,**listStr,**listInt})
+				print(formatted, end='')
+	
+			except KeyError as e:
+				print(f"[Missing:{e}]", end='')
+			#محاسبه عبارت پایتونی
+		elif part.startswith('~') and part.endswith('~'):
+			eval_print = part[1:-1]
+			try:
+				result = eval(eval_print, {}, {**variables, **constable,**array,**listStr,**listInt})
+		# اگر نتیجه رشته‌ای باشه و عددی داخلش باشه، تبدیلش کن
+				print(result, end='')
+			except Exception as e:
+				print(f"[EvalErr:{e}]", end='')
+			#اگر نام متغییر یا ثابت آمد
+		elif part in variables:
+			print(variables[part], end='')
+		elif part in constable:
+			print(constable[part], end='')
+		else:
+			print('', end='')
+		if i < len(parts)-1:
+			print('', end='')
+	print()
 #تابع inp()
 def inp(code):
 	value=None
@@ -1264,6 +1574,8 @@ def run_line(cod):
 	# دستور put(...)
 	elif code.startswith("put") and code[3] == "(" and code[-1] == ")":
 		put(code)
+	elif code.startswith("putln") and code[5] == "(" and code[-1] == ")":
+		putln(code)
 	#دستور EXIT()
 	elif code.startswith('EXIT') and code[4]=='(' and code[-1]==')':
 		code.replace(' ','').lower()
