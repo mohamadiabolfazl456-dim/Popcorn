@@ -1,0 +1,123 @@
+str path=GetCwd()
+putln(path)
+beep(9000,900)
+str char=^a^
+str addres=^Ardabilardabil^
+putln(count(addres=>find),^____^,slep(2),^Counting^)
+putln(replace(^Ard^,^Kjd^,addres))
+list ad=s[^ardabil^,^tabriz^,^tehran^,^esfhan^]
+list ages=i[18,19,20]
+list nums=i[0..10]
+putln(~ad[0]~)
+putln(~ages[0]~)
+con$pi=3
+inp(name,^input_\nname:^)
+slep(2)
+inp(age,^input\sage:^)
+inp(num1,i^input\snumber:^)
+color(lblue)
+var num2=6
+int num3=6
+putln(^Name\s:^,name,^\s^,^Age_:^,age)
+putln(~num1+num2~)
+putln(pi,^_^,name)
+putln(name,^\s^,age)
+inp(id,f^input\sid_{name}:^)
+putln(f^hello\t{name}\t{id}^)
+inp(n,i^input\sn:^)
+inp(do,d^input\sdo:^)
+inp(bo,b^input\sbo:^)
+putln(f^{n}\n{do}\n{bo}^)
+int nn=~num2+num3~
+dou r1=~3.14*3*3~
+putln(f^{nn}\n{r1}^)
+bol bool=~num3>num2~
+putln(bool)
+inp(n1,i^Enter_n1:^)
+inp(n2,i^Enter_n2:^)
+int r=~n1+n2~
+putln(f^Result\n{n1}+{n2}={r}^)
+int n1=1888
+*cls()*
+int a=2
+int b=12
+IF(a==13)>>{
+putln(f^{a}==1^)
+}
+ELSEIF(a==2)>>{
+putln(f^{a}==2^)
+}
+ELSEIF(a==14)>>{
+putln(f^{a}==13^)
+}
+ELSE{
+putln(f^{a}Not^)
+}
+
+int c=0
+LOOP(c<=9)>>{
+putln(f^{c}n^)
+int c=~c+1~
+}
+putln(^end^)
+arr nums = i{9,8,7,6}
+putln(~nums[1]~)
+int X=10
+int Y=10
+fun(i:R=(X**Y)//10)
+putln(f^Result\scode\sfun={R}^)
+inp(¿,^Input Entry^)
+Asci(Aci=^A^)
+Char(Chr=^65^)
+putln(Aci,^_^,Chr);;;put(^ASCII^);;;*Sleep time*;;;putln(^End^)
+int q=0
+int w=2
+LOOP(q<=3)>>{
+putln(f^sleep_time={q}+s^)
+int q=~q+1~
+}
+putln(^End^)
+inp(ch,i^Enter_num:^)
+IF(ch==65)>>{
+Char(chr1=^65^)
+putln(f^{chr1}^)
+}
+*dim<>
+file(open,^test.txt^)
+file(write,^test.txt^,^Hello World\n^)
+file(read,^test.txt^)
+file(append,^test.txt^,^More lines\n^)
+file(read,^test.txt^)
+file(close,^test.txt^)
+file(delete,^test.txt^)
+math(sqrt,16)
+math(pow,2,8)
+math(sin,3.14159/2)
+math(cos,0)
+math(tan,0.785398)
+math(log,100,10)
+math(randint,1,100)
+math(rand)
+*cls()*
+key(k)
+IF(k=='w')>>{
+putln(^UUUUU^)
+}
+ELSE{
+putln(^els^)
+}
+str st=name=>[5:-1]
+putln(st)
+str news=^HELLO_ABOLFAZL^
+putln(^Alan_boresh_midam:^,news=>[:5])
+putln(upper(name),^_^,lower(news))
+putln(upper(^hello^),^_^,lower(^HELLO^))
+putln(len(name=>[0:6]))
+putln(len(name))
+putln(len(^Adolf^))
+*time()*
+*time(now)*
+*time(countdown,10)*
+*time(timer)*
+*time(delay,3)*
+*time(format,%Y/%m/%d %H:%M:%S)*
